@@ -374,7 +374,21 @@ pub(crate) fn bound_split(
     let bytes = validate_layout(spec, src.1, count.map(|(_, off)| off))?;
     let both = bytes.checked_mul(2).filter(|&b| b <= u64::from(u32::MAX))?;
     let (c, budget, dst) = (clamp()?, list.budget()?, list.indirect_scratch(both)?);
-    record_clamp_with(c, &list.list, &dst, budget, src, count, spec, (false, spec.0 == 2)).then_some(dst)
+    let before = list.indirect_state(&dst);
+    let recorded = record_clamp_with(
+        c,
+        &list.list,
+        (&dst, before),
+        budget,
+        src,
+        count,
+        spec,
+        (false, spec.0 == 2),
+    );
+    if recorded {
+        list.indirect_readable(&dst);
+    }
+    recorded.then_some(dst)
 }
 
 /// [`bound`] for a window of records clamped ahead of the draws that will
@@ -428,7 +442,7 @@ fn clamp_into(
 fn record_clamp_as(
     c: &Clamp,
     l: &ID3D12GraphicsCommandList,
-    (dst, before): (&ID3D12Resource, D3D12_RESOURCE_STATES),
+    dst: (&ID3D12Resource, D3D12_RESOURCE_STATES),
     budget: u64,
     src: (&ID3D12Resource, u64),
     count: Option<(&ID3D12Resource, u64)>,
@@ -444,7 +458,7 @@ fn record_clamp_as(
 fn record_clamp_with(
     c: &Clamp,
     l: &ID3D12GraphicsCommandList,
-    dst: &ID3D12Resource,
+    (dst, before): (&ID3D12Resource, D3D12_RESOURCE_STATES),
     budget: u64,
     (src, src_offset): (&ID3D12Resource, u64),
     count: Option<(&ID3D12Resource, u64)>,
