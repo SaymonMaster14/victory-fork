@@ -55,6 +55,8 @@ mod queue2;
 pub mod resource;
 pub mod root;
 #[cfg(windows)]
+mod ambient;
+#[cfg(windows)]
 mod census;
 #[cfg(windows)]
 mod sampler;

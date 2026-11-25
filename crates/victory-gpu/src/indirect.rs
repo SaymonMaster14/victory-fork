@@ -1458,7 +1458,7 @@ void main(uint3 g : SV_GroupID) {
         assert!(record_clamp_with(
             &warp.clamp,
             &warp.list,
-            &dst_buf,
+            (&dst_buf, D3D12_RESOURCE_STATE_COMMON),
             budget_gpu,
             (&src_buf, 0),
             None,
@@ -1479,7 +1479,6 @@ void main(uint3 g : SV_GroupID) {
                 l.ExecuteIndirect(&sig, 1, &dst_buf, u64::from(STRIDE), None, 0);
             }
         }
-        done_on(&warp.list, &dst_buf);
         warp.submit_and_wait();
         // SAFETY: the GPU is done; mapped host memory.
         unsafe {
