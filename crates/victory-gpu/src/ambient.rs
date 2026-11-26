@@ -153,7 +153,7 @@ fn follow() -> Option<[f32; 3]> {
         if set.trim() == "off" {
             return None;
         }
-        let mut follow = [0.36, 0.05, 0.4];
+        let mut follow = [0.60, 0.10, 0.4];
         for (to, v) in follow.iter_mut().zip(set.split(',')) {
             if let Ok(v) = v.trim().parse() {
                 *to = v;
@@ -180,7 +180,7 @@ fn shade() -> [f32; 4] {
     }
     static SET: OnceLock<[f32; 4]> = OnceLock::new();
     *SET.get_or_init(|| {
-        let mut shade = [1.0, 0.6, 0.1, 0.45];
+        let mut shade = [0.65, 0.6, 0.1, 0.45];
         let set = std::env::var("VICTORY_AMBIENT_SHADE").unwrap_or_default();
         for (to, v) in shade.iter_mut().zip(set.split(',')) {
             if let Ok(v) = v.trim().parse() {
